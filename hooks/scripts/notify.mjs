@@ -9,8 +9,11 @@ const PROJECT_ROOT = process.env.CLAUDE_PLUGIN_ROOT || join(__dirname, "..", "..
 const STATE_FILE = join(process.env.TEMP || "C:\\Temp", "claude-notify-state.json");
 const DEBOUNCE_WINDOW = 30_000;
 const ICON_PATH = join(PROJECT_ROOT, "assets", "claude.svg");
+const FOCUS_PROTOCOL = "claude-win-notify://focus";
+const FOCUS_PROTOCOL_KEY = "HKCU\\Software\\Classes\\claude-win-notify";
 
 let _aumid;
+let _focusHandlerInstalled;
 function getAumid() {
   if (_aumid !== undefined) return _aumid;
   try {
@@ -20,6 +23,18 @@ function getAumid() {
       : undefined;
   } catch { _aumid = undefined; }
   return _aumid;
+}
+
+function hasFocusHandler() {
+  if (_focusHandlerInstalled !== undefined) return _focusHandlerInstalled;
+  try {
+    const r = spawnSync("reg", ["query", FOCUS_PROTOCOL_KEY], {
+      windowsHide: true,
+      timeout: 3000,
+    });
+    _focusHandlerInstalled = r.status === 0;
+  } catch { _focusHandlerInstalled = false; }
+  return _focusHandlerInstalled;
 }
 
 function now() { return Date.now(); }
@@ -57,6 +72,9 @@ async function sendToast(title, message) {
     icon,
     aumid: getAumid(),
     silent: false,
+    ...(hasFocusHandler()
+      ? { activation: { type: "protocol", launch: FOCUS_PROTOCOL } }
+      : {}),
   });
   try { await toast.show(); } catch {}
 

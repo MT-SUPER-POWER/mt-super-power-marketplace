@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node hooks/scripts/tests/test.mjs",
     "test:toast": "node hooks/scripts/tests/test-toast.mjs",
-    "test:integration": "node hooks/scripts/tests/test-integration.mjs"
+    "test:integration": "node hooks/scripts/tests/test-integration.mjs",
+    "test:activation": "node hooks/scripts/tests/test-activation.mjs"
   },
   "repository": {
     "type": "git",
