@@ -30,9 +30,11 @@ Claude Code plugin marketplace by MT.
 
 ```
 mt-super-power-marketplace/
-├── README.md              # 本文件
-└── plugins/               # 插件目录（必须）
-    └── claude-win-notify/ # 插件包
+├── .claude-plugin/
+│   └── marketplace.json    # Marketplace 清单（必需）
+├── README.md               # 本文件
+└── plugins/                # 插件目录
+    └── claude-win-notify/  # 插件包
         ├── .claude-plugin/
         │   └── plugin.json
         ├── hooks/
