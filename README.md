@@ -1,92 +1,48 @@
-# claude-win-notify
+# MT Super Power Marketplace
 
-Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。
+Claude Code plugin marketplace by MT.
 
-当 Claude Code 发生以下事件时，在 Windows 右下角弹出 Toast 通知：
-- 请求工具权限（Bash/Edit/Write/Agent）
-- 向你提问
-- 任务完成
+## 安装 Marketplace
 
-## 安装
-
-### 方式一：使用 claude plugin init（推荐，自动加载）
-
-Claude Code 可以自动加载 skills 目录中的插件，无需手动复制文件：
-
-1. 克隆本仓库到本地任意目录:
-   ```bash
-   git clone https://github.com/MT-SUPER-POWER/claude-win-notify.git
-   cd claude-win-notify
-   npm install
-   ```
-2. 使用 plugin init 创建 skills 目录中的插件:
-   ```bash
-   claude plugin init claude-win-notify
-   ```
-   这会创建 `~/.claude/skills/claude-win-notify/` 目录，包含插件清单和 SKILL.md。
-
-3. 将本仓库的内容复制到 skills 目录（覆盖自动生成的文件）:
-   ```powershell
-   Copy-Item -Path .\* -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
-   ```
-
-4. 启动新会话或运行 `/reload-plugins` 即可自动加载。
-
-### 方式二：本地手动安装（直接复制）
-
-```powershell
-# PowerShell 命令行：
-New-Item -ItemType Directory -Force -Path "$HOME\.claude\skills"
-Copy-Item -Path D:\Github\claude-win-notify -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
-```
-
-启动新会话或运行 `/reload-plugins`。
-
-### 方式三：本地开发测试（临时加载）
+在 Claude Code 中运行：
 
 ```bash
-claude --plugin-dir D:\Github\claude-win-notify
+/plugin marketplace add MT-SUPER-POWER/mt-super-power-marketplace
 ```
 
-## 系统要求
+然后安装插件：
 
-- Windows 10 1809+（使用内置 WinRT Toast API）
-- Node.js（运行通知脚本）
-- Windows Terminal（通知来源显示，非必须但推荐）
-
-## 项目结构
-
-```
-├── .claude-plugin/plugin.json     # 插件清单
-├── hooks/hooks.json               # Hook 事件配置
-├── hooks/scripts/notify.mjs       # 通知脚本（核心，使用 powertoast）
-└── assets/claude.svg              # Toast 图标
-```
-
-## Hook 事件
-
-| 事件 | 匹配器 | 触发时机 |
-|------|--------|---------|
-| `PermissionRequest` | `Bash\|Edit\|Write\|Agent` | 工具需要审批 |
-| `PreToolUse` | `AskUserQuestion` | Claude 向你提问 |
-| `Stop` | (全部) | 任务完成 |
-
-## 工作原理
-
-1. Claude Code 触发 hook 事件时，执行 `hooks/scripts/notify.mjs`
-2. 脚本通过 [powertoast](https://github.com/xan105/node-powertoast) 调用 WinRT Toast API 弹出系统通知
-3. 检测是否安装了 Windows Terminal，有则使用其 AUMID（通知来源显示为 "Windows Terminal"）
-4. Stop 事件带有 30 秒防抖：如果刚显示过权限/提问通知，则跳过完成通知，避免冗余
-
-## 开发
-
-### 运行测试
 ```bash
-node hooks/scripts/tests/test.mjs          # 基础弹窗测试
-node hooks/scripts/tests/test-toast.mjs    # Toast 功能测试
-node hooks/scripts/tests/test-integration.mjs  # 集成测试
+/plugin install claude-win-notify
 ```
+
+## 可用插件
+
+| 插件 | 说明 |
+|------|------|
+| [claude-win-notify](plugins/claude-win-notify/) | Windows 原生 Toast 通知 — 工具审批、提问、任务完成时弹出通知 |
+
+## 发布流程
+
+本仓库遵循 [Claude Code 插件市场规范](https://code.claude.com/docs/zh-CN/plugin-marketplaces)。
+
+目录结构：
+
+```
+mt-super-power-marketplace/
+├── README.md              # 本文件
+└── plugins/               # 插件目录（必须）
+    └── claude-win-notify/ # 插件包
+        ├── .claude-plugin/
+        │   └── plugin.json
+        ├── hooks/
+        │   ├── hooks.json
+        │   └── scripts/
+        └── assets/
+```
+
+更新插件后，修改 `plugin.json` 中的 `version` 并推送到 `main` 分支，用户可通过 `/plugin update` 获取最新版本。
 
 ## 许可
 
-[MIT License](LICENSE)
+各插件许可见其目录下的 LICENSE 文件。
