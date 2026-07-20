@@ -1,6 +1,6 @@
 # MT Super Power Marketplace
 
-Claude Code plugin marketplace by MT.
+Claude Code plugin marketplace by MT-SUPER-POWER.
 
 ## 安装 Marketplace
 
@@ -18,9 +18,9 @@ Claude Code plugin marketplace by MT.
 
 ## 可用插件
 
-| 插件 | 说明 |
-|------|------|
-| [claude-win-notify](plugins/claude-win-notify/) | Windows 原生 Toast 通知 — 工具审批、提问、任务完成时弹出通知 |
+| 插件                                            | 说明                                                                           |
+| ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| [claude-win-notify](plugins/claude-win-notify/) | Windows 原生 Toast 通知 — 工具审批、提问、任务完成时弹出通知，支持点击聚焦终端 |
 
 ## 发布流程
 
@@ -40,11 +40,24 @@ mt-super-power-marketplace/
         ├── hooks/
         │   ├── hooks.json
         │   └── scripts/
+        │       ├── notify.mjs           # 通知脚本
+        │       ├── focus-terminal.vbs   # 聚焦终端脚本
+        │       └── install-focus-handler.ps1  # 安装聚焦处理器
         └── assets/
 ```
 
-更新插件后，修改 `plugin.json` 中的 `version` 并推送到 `main` 分支，用户可通过 `/plugin update` 获取最新版本。
+### 更新插件
+
+1. 修改 `plugins/claude-win-notify/.claude-plugin/plugin.json` 中的 `version`
+2. 推送到 `main` 分支
+3. 用户执行 `/plugin update` 获取最新版本
+
+### 验证 Marketplace
+
+```bash
+claude plugin validate .
+```
 
 ## 许可
 
-各插件许可见其目录下的 LICENSE 文件。
+[LICENSE](./LICENSE)。
