@@ -1,0 +1,13 @@
+{
+  "name": "mt-super-power-marketplace",
+  "owner": {
+    "name": "MT"
+  },
+  "plugins": [
+    {
+      "name": "claude-win-notify",
+      "source": "./plugins/claude-win-notify",
+      "description": "Windows native Toast notifications for Claude Code events — tool approval, questions, and task completion"
+    }
+  ]
+}
