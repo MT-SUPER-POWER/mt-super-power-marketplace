@@ -9,38 +9,41 @@ Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。
 
 ## 安装
 
-### 方式一：本地手动安装（推荐，当前未发布到 Marketplace 时使用）
+### 方式一：使用 claude plugin init（推荐，自动加载）
 
-1. 克隆本仓库到本地任意目录（例如 `D:\Github\claude-win-notify`）:
+Claude Code 可以自动加载 skills 目录中的插件，无需手动复制文件：
+
+1. 克隆本仓库到本地任意目录:
    ```bash
    git clone https://github.com/MT-SUPER-POWER/claude-win-notify.git
-   ```
-2. 进入目录并安装 npm 依赖:
-   ```bash
    cd claude-win-notify
    npm install
    ```
-3. 创建全局技能目录并将整个插件文件夹拷贝进去 (Windows 环境):
-   ```powershell
-   # PowerShell 命令行示例：
-   New-Item -ItemType Directory -Force -Path "$HOME\.claude\skills"
-   Copy-Item -Path . -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
-   ```
-4. 启动 Claude Code 或在现有会话中运行以下命令重新加载插件:
+2. 使用 plugin init 创建 skills 目录中的插件:
    ```bash
-   /reload-plugins
+   claude plugin init claude-win-notify
+   ```
+   这会创建 `~/.claude/skills/claude-win-notify/` 目录，包含插件清单和 SKILL.md。
+
+3. 将本仓库的内容复制到 skills 目录（覆盖自动生成的文件）:
+   ```powershell
+   Copy-Item -Path .\* -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
    ```
 
-### 方式二：通过 Marketplace 安装（需先添加 Marketplace）
+4. 启动新会话或运行 `/reload-plugins` 即可自动加载。
 
-如果你已将本仓库或包含本插件的仓库添加为 Marketplace，可以通过以下命令安装：
-```bash
-/plugin install claude-win-notify@<marketplace-name>
+### 方式二：本地手动安装（直接复制）
+
+```powershell
+# PowerShell 命令行：
+New-Item -ItemType Directory -Force -Path "$HOME\.claude\skills"
+Copy-Item -Path D:\Github\claude-win-notify -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
 ```
 
-### 方式三：本地开发测试
+启动新会话或运行 `/reload-plugins`。
 
-在启动 Claude Code 时，通过 `--plugin-dir` 临时加载本插件进行测试：
+### 方式三：本地开发测试（临时加载）
+
 ```bash
 claude --plugin-dir D:\Github\claude-win-notify
 ```

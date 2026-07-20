@@ -10,8 +10,6 @@ const STATE_FILE = join(process.env.TEMP || "C:\\Temp", "claude-notify-state.jso
 const DEBOUNCE_WINDOW = 30_000;
 const ICON_PATH = join(PROJECT_ROOT, "assets", "claude.svg");
 
-// Windows Terminal AUMID（通过 where 检测是否安装）
-// WindowsApps 是保护目录，existsSync 不可用
 let _aumid;
 function getAumid() {
   if (_aumid !== undefined) return _aumid;
@@ -24,16 +22,14 @@ function getAumid() {
   return _aumid;
 }
 
-// ── 状态管理（用于 Stop 防抖） ─────────────────
 function now() { return Date.now(); }
 
 function readState() {
   try { if (existsSync(STATE_FILE)) return JSON.parse(readFileSync(STATE_FILE, "utf-8")); }
   catch { return null; }
 }
-
-function saveState(state)  { try { writeFileSync(STATE_FILE, JSON.stringify(state)); } catch {} }
-function clearState()      { try { writeFileSync(STATE_FILE, JSON.stringify(null)); } catch {} }
+function saveState(state) { try { writeFileSync(STATE_FILE, JSON.stringify(state)); } catch {} }
+function clearState()     { try { writeFileSync(STATE_FILE, JSON.stringify(null)); } catch {} }
 
 async function readStdin() {
   try {
@@ -49,6 +45,10 @@ function clip(str, max = 120) {
   return str.length <= max ? str : str.slice(0, max - 3) + "...";
 }
 
+/**
+ * 发送 Toast 通知 + 返回 terminalSequence 给 Claude Code
+ * terminalSequence 通过终端 OSC 9 发送，在 Windows Terminal 上触发系统通知
+ */
 async function sendToast(title, message) {
   const icon = existsSync(ICON_PATH) ? ICON_PATH : "";
   const toast = new Toast({
@@ -58,10 +58,16 @@ async function sendToast(title, message) {
     aumid: getAumid(),
     silent: false,
   });
-  try { await toast.show(); } catch { /* 静默失败 */ }
+  try { await toast.show(); } catch {}
+
+  // 返回 terminalSequence：OSC 9 在 Windows Terminal 触发系统通知，点击可聚焦
+  const t = clip(title, 60);
+  const m = clip(message, 140);
+  const seq = `\x1b]9;${t};${m}\x07`;
+  process.stdout.write(JSON.stringify({ terminalSequence: seq }));
 }
 
-function handlePermission(data) {
+async function handlePermission(data) {
   const tool  = data?.tool_name;
   const input = data?.tool_input || {};
   let msg = "";
@@ -73,13 +79,13 @@ function handlePermission(data) {
     default:      msg = `请求使用: ${tool}`;
   }
   saveState({ type: "permission", time: now() });
-  sendToast("Claude Code 等待批准", msg);
+  await sendToast("Claude Code 等待批准", msg);
 }
 
-function handleQuestion(data) {
+async function handleQuestion(data) {
   const q = clip(data?.tool_input?.question, 140);
   saveState({ type: "question", time: now(), question: q });
-  sendToast("Claude Code 有问题", q || "Claude 想问你一些事");
+  await sendToast("Claude Code 有问题", q || "Claude 想问你一些事");
 }
 
 async function handleStop() {
@@ -87,13 +93,13 @@ async function handleStop() {
   const elapsed = state ? now() - state.time : Infinity;
   if (state && elapsed < DEBOUNCE_WINDOW) { clearState(); return; }
   clearState();
-  sendToast("Claude Code 完成", "任务完成，等待你的指示");
+  await sendToast("Claude Code 完成", "任务完成，等待你的指示");
 }
 
 const mode = process.argv[2];
 switch (mode) {
-  case "--permission": { const d = await readStdin(); handlePermission(d); break; }
-  case "--question":   { const d = await readStdin(); handleQuestion(d);   break; }
+  case "--permission": { const d = await readStdin(); await handlePermission(d); break; }
+  case "--question":   { const d = await readStdin(); await handleQuestion(d);   break; }
   case "--stop":       { await handleStop(); break; }
   default:             { const d = await readStdin(); console.error(JSON.stringify(d, null, 2)); }
 }
