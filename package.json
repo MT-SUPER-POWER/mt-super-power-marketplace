@@ -1,0 +1,24 @@
+{
+  "name": "claude-win-notify",
+  "version": "1.0.0",
+  "description": "Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MT-SUPER-POWER/claude-win-notify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MT-SUPER-POWER/claude-win-notify/issues"
+  },
+  "homepage": "https://github.com/MT-SUPER-POWER/claude-win-notify#readme",
+  "dependencies": {
+    "powertoast": "^3.0.0"
+  }
+}
