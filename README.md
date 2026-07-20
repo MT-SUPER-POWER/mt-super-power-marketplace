@@ -9,12 +9,38 @@ Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。
 
 ## 安装
 
-### 全局安装（推荐）
+### 方式一：本地手动安装（推荐，当前未发布到 Marketplace 时使用）
+
+1. 克隆本仓库到本地任意目录（例如 `D:\Github\claude-win-notify`）:
+   ```bash
+   git clone https://github.com/MT-SUPER-POWER/claude-win-notify.git
+   ```
+2. 进入目录并安装 npm 依赖:
+   ```bash
+   cd claude-win-notify
+   npm install
+   ```
+3. 创建全局技能目录并将整个插件文件夹拷贝进去 (Windows 环境):
+   ```powershell
+   # PowerShell 命令行示例：
+   New-Item -ItemType Directory -Force -Path "$HOME\.claude\skills"
+   Copy-Item -Path . -Destination "$HOME\.claude\skills\claude-win-notify" -Recurse -Force
+   ```
+4. 启动 Claude Code 或在现有会话中运行以下命令重新加载插件:
+   ```bash
+   /reload-plugins
+   ```
+
+### 方式二：通过 Marketplace 安装（需先添加 Marketplace）
+
+如果你已将本仓库或包含本插件的仓库添加为 Marketplace，可以通过以下命令安装：
 ```bash
-/plugin install https://github.com/MT-SUPER-POWER/claude-win-notify
+/plugin install claude-win-notify@<marketplace-name>
 ```
 
-### 本地开发测试
+### 方式三：本地开发测试
+
+在启动 Claude Code 时，通过 `--plugin-dir` 临时加载本插件进行测试：
 ```bash
 claude --plugin-dir D:\Github\claude-win-notify
 ```
