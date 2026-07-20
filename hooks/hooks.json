@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": ["node", "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--permission"]
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--permission"]
           }
         ]
       }
@@ -17,7 +18,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": ["node", "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--question"]
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--question"]
           }
         ]
       }
@@ -27,7 +29,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": ["node", "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--stop"]
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--stop"]
           }
         ]
       }
