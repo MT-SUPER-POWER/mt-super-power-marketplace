@@ -1,0 +1,10 @@
+{
+  "name": "claude-win-notify",
+  "description": "Windows native Toast notifications for Claude Code events — tool approval, questions, and task completion",
+  "version": "1.0.0",
+  "author": {
+    "name": "MT"
+  },
+  "homepage": "https://github.com/MT-SUPER-POWER/claude-win-notify",
+  "license": "MIT"
+}
