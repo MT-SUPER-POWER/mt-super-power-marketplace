@@ -22,17 +22,16 @@ claude --plugin-dir D:\Github\claude-win-notify
 ## 系统要求
 
 - Windows 10 1809+（使用内置 WinRT Toast API）
-- Node.js（运行 notify.mjs）
-- PowerShell 5.1+（notify.ps1 回退方案）
+- Node.js（运行通知脚本）
+- Windows Terminal（通知来源显示，非必须但推荐）
 
 ## 项目结构
 
 ```
 ├── .claude-plugin/plugin.json     # 插件清单
-├── hooks/hooks.json                # Hook 事件配置
-├── hooks/scripts/notify.mjs        # Node.js 通知脚本（核心）
-├── hooks/scripts/notify.ps1        # PowerShell 备选脚本
-└── assets/claude.svg               # Toast 图标
+├── hooks/hooks.json               # Hook 事件配置
+├── hooks/scripts/notify.mjs       # 通知脚本（核心，使用 powertoast）
+└── assets/claude.svg              # Toast 图标
 ```
 
 ## Hook 事件
@@ -46,9 +45,19 @@ claude --plugin-dir D:\Github\claude-win-notify
 ## 工作原理
 
 1. Claude Code 触发 hook 事件时，执行 `hooks/scripts/notify.mjs`
-2. 脚本通过 WinRT API（`Windows.UI.Notifications.ToastNotificationManager`）弹出系统 Toast
-3. Stop 事件带有 30 秒防抖：如果刚显示过权限/提问通知，则跳过完成通知，避免冗余
+2. 脚本通过 [powertoast](https://github.com/xan105/node-powertoast) 调用 WinRT Toast API 弹出系统通知
+3. 检测是否安装了 Windows Terminal，有则使用其 AUMID（通知来源显示为 "Windows Terminal"）
+4. Stop 事件带有 30 秒防抖：如果刚显示过权限/提问通知，则跳过完成通知，避免冗余
+
+## 开发
+
+### 运行测试
+```bash
+node hooks/scripts/tests/test.mjs          # 基础弹窗测试
+node hooks/scripts/tests/test-toast.mjs    # Toast 功能测试
+node hooks/scripts/tests/test-integration.mjs  # 集成测试
+```
 
 ## 许可
 
-MIT
+[MIT License](LICENSE)
