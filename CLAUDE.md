@@ -9,11 +9,10 @@ A Claude Code plugin that sends Windows native Toast notifications for key Claud
 ## Architecture
 
 ```
-├── .claude-plugin/plugin.json     # Plugin manifest (name, version, author)
-├── hooks/hooks.json               # Maps hook events → script invocations
-├── hooks/scripts/notify.mjs       # Primary Node.js notification script
-├── hooks/scripts/notify.ps1       # PowerShell fallback
-└── assets/                        # Toast icons (claude.svg, claudecode-color.svg)
+├── .claude-plugin/plugin.json     # Plugin manifest
+├── hooks/hooks.json               # Hook event → script mapping
+├── hooks/scripts/notify.mjs       # Notification script (powertoast)
+└── assets/claude.svg              # Toast icon
 ```
 
 ### Hook Events
@@ -26,44 +25,61 @@ A Claude Code plugin that sends Windows native Toast notifications for key Claud
 
 ### notify.mjs — Core Logic
 
-- **Mode**: Reads `process.argv[2]` (`--permission`, `--question`, `--stop`) to determine event type
-- **Stdin**: `PermissionRequest` and `PreToolUse` events pipe JSON event data via stdin
-- **Debounce**: `Stop` events are debounced with a 30-second window via `%TEMP%\claude-notify-state.json` — if a permission/question toast was shown recently, the stop toast is suppressed
-- **Toast delivery**: Spawns a hidden `powershell.exe` process that calls the WinRT `Windows.UI.Notifications.ToastNotificationManager` API
-- **Icon**: Loads `assets/claude.svg` from `CLAUDE_PLUGIN_ROOT` env var
+- **powertoast**: Uses [powertoast](https://github.com/xan105/node-powertoast) npm package instead of raw PowerShell, which handles WinRT API loading and AUMID issues
+- **AUMID**: Auto-detects Windows Terminal via `where wt.exe` (WindowsApps is protected, `existsSync` doesn't work), falls back to undefined if not installed
+- **Stdin**: `PermissionRequest` and `PreToolUse` events pipe JSON via stdin
+- **Debounce**: Stop events are debounced 30s via `%TEMP%\claude-notify-state.json`
+- **Event type**: Reads `process.argv[2]` (`--permission`, `--question`, `--stop`)
 
-### Path Conventions
+### hooks.json Format
 
-- All hooks use `${CLAUDE_PLUGIN_ROOT}` placeholder + exec form (args array) — never shell strings
-- The `CLAUDE_PLUGIN_ROOT` environment variable is injected by the Claude Code plugin runtime
-- Assets and scripts are always referenced relative to `CLAUDE_PLUGIN_ROOT`
+Use exec form (documented format) — `command` is a string, `args` is an array:
+
+```json
+{
+  "type": "command",
+  "command": "node",
+  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/notify.mjs", "--permission"]
+}
+```
+
+**Do NOT** use array format for `command` — `"command": ["node", "..."]` is invalid and will silently fail.
 
 ## Installation
 
-### Development / testing (no install)
+### Development / testing
 ```bash
 claude --plugin-dir D:\Github\claude-win-notify
 ```
 
-### Production (global install)
+### Community marketplace (after submission)
 ```bash
-/plugin install D:\Github\claude-win-notify
-# or from GitHub
-/plugin install https://github.com/MT-SUPER-POWER/claude-win-notify
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install claude-win-notify
 ```
 
-Once installed via `/plugin install`, the plugin loads automatically in every session.
+Validate before submitting:
+```bash
+claude plugin validate D:\Github\claude-win-notify
+```
 
 ## Development Workflow
 
 ### Adding a New Hook Event
 
-1. Add entry in `hooks/hooks.json` with the event name, optional matcher regex, and command args
-2. Implement the handler in `hooks/scripts/notify.mjs` — add a new case to the `mode` switch and a handler function
-3. Wire the new flag (e.g., `--my-event`) to the handler in the switch statement at the bottom of `notify.mjs`
+1. Add entry in `hooks/hooks.json` with the event name, optional matcher regex, and exec-form command/args
+2. Add handler in `notify.mjs` — add a case to the `mode` switch at the bottom
+3. Test with the appropriate test script in `hooks/scripts/tests/`
+
+### Running Tests
+```bash
+node hooks/scripts/tests/test.mjs          # Basic toast test
+node hooks/scripts/tests/test-toast.mjs    # Toast feature tests
+node hooks/scripts/tests/test-integration.mjs  # Integration tests
+```
 
 ## Requirements
 
 - Windows 10 1809+ (WinRT toast API)
-- Node.js (for notify.mjs)
-- PowerShell 5.1+ (for notify.ps1 fallback)
+- Node.js
+- Windows Terminal (optional — for branded notification source)
