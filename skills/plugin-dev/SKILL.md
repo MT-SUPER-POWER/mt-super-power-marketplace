@@ -1,5 +1,5 @@
 ---
-description: Development guidance for the claude-win-notify plugin — architecture, hooks, testing, and contributing.
+description: "Use when the user asks about this plugin's architecture, wants to add a new hook event, edit notify.mjs, modify hooks.json, run plugin tests, or debug notification issues."
 ---
 
 # claude-win-notify 开发指南
