@@ -14,6 +14,7 @@ Claude Code plugin marketplace by MT-SUPER-POWER.
 
 ```bash
 /plugin install claude-win-notify
+/plugin install git-conventions
 ```
 
 ## 可用插件
@@ -21,6 +22,7 @@ Claude Code plugin marketplace by MT-SUPER-POWER.
 | 插件                                            | 说明                                                                           |
 | ----------------------------------------------- | ------------------------------------------------------------------------------ |
 | [claude-win-notify](plugins/claude-win-notify/) | Windows 原生 Toast 通知 — 工具审批、提问、任务完成时弹出通知，支持点击聚焦终端 |
+| [git-conventions](plugins/git-conventions/)     | Enforce Conventional Commits with structured body, pre-commit checks, and safe git defaults |
 
 ## 发布流程
 
@@ -34,16 +36,22 @@ mt-super-power-marketplace/
 │   └── marketplace.json    # Marketplace 清单（必需）
 ├── README.md               # 本文件
 └── plugins/                # 插件目录
-    └── claude-win-notify/  # 插件包
+    ├── claude-win-notify/  # Windows Toast 通知
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── hooks/
+    │   │   ├── hooks.json
+    │   │   └── scripts/
+    │   │       ├── notify.mjs
+    │   │       ├── focus-terminal.vbs
+    │   │       └── install-focus-handler.ps1
+    │   └── assets/
+    └── git-conventions/    # Git 提交准则
         ├── .claude-plugin/
         │   └── plugin.json
-        ├── hooks/
-        │   ├── hooks.json
-        │   └── scripts/
-        │       ├── notify.mjs           # 通知脚本
-        │       ├── focus-terminal.vbs   # 聚焦终端脚本
-        │       └── install-focus-handler.ps1  # 安装聚焦处理器
-        └── assets/
+        ├── skills/
+        │   └── SKILL.md
+        └── README.md
 ```
 
 ### 更新插件

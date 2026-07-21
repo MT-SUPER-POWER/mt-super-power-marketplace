@@ -8,6 +8,11 @@
       "name": "claude-win-notify",
       "source": "./plugins/claude-win-notify",
       "description": "Windows native Toast notifications for Claude Code events — tool approval, questions, and task completion"
+    },
+    {
+      "name": "git-conventions",
+      "source": "./plugins/git-conventions",
+      "description": "Enforce Conventional Commits with structured body, pre-commit checks, and safe git defaults"
     }
   ]
 }
