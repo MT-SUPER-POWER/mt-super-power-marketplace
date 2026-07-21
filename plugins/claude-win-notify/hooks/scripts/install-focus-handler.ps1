@@ -2,10 +2,24 @@
 param()
 
 $ErrorActionPreference = "Stop"
-$focusScript = Join-Path $PSScriptRoot "focus-terminal.ps1"
-$launcherScript = Join-Path $PSScriptRoot "focus-terminal.vbs"
+
+# 优先使用 CLAUDE_PLUGIN_ROOT 环境变量（Claude 插件系统会注入）
+# 这样无论插件安装在哪里，路径都是正确的
+$pluginRoot = $env:CLAUDE_PLUGIN_ROOT
+
+if ($pluginRoot -and (Test-Path -LiteralPath $pluginRoot)) {
+    # 使用 CLAUDE_PLUGIN_ROOT 构建路径
+    $focusScript = Join-Path $pluginRoot "hooks\scripts\focus-terminal.ps1"
+    $launcherScript = Join-Path $pluginRoot "hooks\scripts\focus-terminal.vbs"
+} else {
+    # 回退到脚本所在目录（开发环境或本地测试时使用）
+    $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path $MyInvocation.MyCommand.Path -Parent }
+    $focusScript = Join-Path $scriptDir "focus-terminal.ps1"
+    $launcherScript = Join-Path $scriptDir "focus-terminal.vbs"
+}
 if (-not (Test-Path -LiteralPath $focusScript) -or -not (Test-Path -LiteralPath $launcherScript)) {
-  throw "Focus handler files were not found in: $PSScriptRoot"
+  $searchPath = if ($pluginRoot) { $pluginRoot } else { $scriptDir }
+  throw "Focus handler files were not found in: $searchPath"
 }
 
 $protocolKey = "HKCU\Software\Classes\claude-win-notify"
