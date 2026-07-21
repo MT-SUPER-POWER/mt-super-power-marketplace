@@ -22,15 +22,17 @@ Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。
 claude --plugin-dir D:\Github\claude-win-notify\plugins\claude-win-notify
 ```
 
-### 安装点击聚焦功能（可选）
+### 点击聚焦功能（自动配置）
 
-首次安装后，在 PowerShell 中执行一次：
+首次显示通知时，插件会自动在 `%LOCALAPPDATA%\claude-win-notify` 安装稳定的启动器，并为当前用户注册 `claude-win-notify://` 协议。点击通知横幅即可在后台恢复并聚焦运行中的 Windows Terminal 窗口，不会创建新 tab 或控制台窗口。
+
+插件升级、重装或 Marketplace 缓存目录变化时，通知脚本会自动校验并修复协议处理器，因此注册表不会指向易变的插件目录。
+
+若系统策略阻止自动注册，可在插件目录中手动执行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\hooks\scripts\install-focus-handler.ps1
 ```
-
-安装脚本会为当前 Windows 用户注册 `claude-win-notify://` 协议。之后点击通知横幅会在后台恢复并聚焦运行中的 Windows Terminal 窗口，不会创建新 tab 或控制台窗口。
 
 ## 系统要求
 

@@ -11,6 +11,14 @@ const DEBOUNCE_WINDOW = 30_000;
 const ICON_PATH = join(PROJECT_ROOT, "assets", "claude.svg");
 const FOCUS_PROTOCOL = "claude-win-notify://focus";
 const FOCUS_PROTOCOL_KEY = "HKCU\\Software\\Classes\\claude-win-notify";
+const FOCUS_COMMAND_KEY = `${FOCUS_PROTOCOL_KEY}\\shell\\open\\command`;
+const FOCUS_INSTALLER = join(__dirname, "install-focus-handler.ps1");
+const LOCAL_APP_DATA = process.env.LOCALAPPDATA || (
+  process.env.USERPROFILE ? join(process.env.USERPROFILE, "AppData", "Local") : ""
+);
+const FOCUS_LAUNCHER = LOCAL_APP_DATA
+  ? join(LOCAL_APP_DATA, "claude-win-notify", "focus-terminal.vbs")
+  : "";
 
 let _aumid;
 let _focusHandlerInstalled;
@@ -25,14 +33,36 @@ function getAumid() {
   return _aumid;
 }
 
-function hasFocusHandler() {
-  if (_focusHandlerInstalled !== undefined) return _focusHandlerInstalled;
+function isFocusHandlerCurrent() {
+  if (!FOCUS_LAUNCHER || !existsSync(FOCUS_LAUNCHER)) return false;
   try {
-    const r = spawnSync("reg", ["query", FOCUS_PROTOCOL_KEY], {
+    const r = spawnSync("reg", ["query", FOCUS_COMMAND_KEY, "/ve"], {
       windowsHide: true,
       timeout: 3000,
+      encoding: "utf8",
     });
-    _focusHandlerInstalled = r.status === 0;
+    return r.status === 0 && r.stdout.toLowerCase().includes(FOCUS_LAUNCHER.toLowerCase());
+  } catch { return false; }
+}
+
+function hasFocusHandler() {
+  if (_focusHandlerInstalled !== undefined) return _focusHandlerInstalled;
+  if (isFocusHandlerCurrent()) {
+    _focusHandlerInstalled = true;
+    return true;
+  }
+
+  try {
+    const r = spawnSync("powershell.exe", [
+      "-NoProfile",
+      "-NonInteractive",
+      "-ExecutionPolicy", "Bypass",
+      "-File", FOCUS_INSTALLER,
+    ], {
+      windowsHide: true,
+      timeout: 10_000,
+    });
+    _focusHandlerInstalled = r.status === 0 && isFocusHandlerCurrent();
   } catch { _focusHandlerInstalled = false; }
   return _focusHandlerInstalled;
 }

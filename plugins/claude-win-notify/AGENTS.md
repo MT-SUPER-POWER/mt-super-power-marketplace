@@ -13,7 +13,7 @@ A Codex plugin that sends Windows native Toast notifications for key Codex event
 ├── hooks/hooks.json                    # Hook event → script mapping
 ├── hooks/scripts/notify.mjs            # Notification script (powertoast)
 ├── hooks/scripts/focus-terminal.vbs    # VBScript to focus Windows Terminal
-├── hooks/scripts/install-focus-handler.ps1  # One-time protocol handler installer
+├── hooks/scripts/install-focus-handler.ps1  # Protocol handler installer/repairer
 └── assets/Codex.svg                   # Toast icon
 ```
 
@@ -32,11 +32,11 @@ A Codex plugin that sends Windows native Toast notifications for key Codex event
 - **Stdin**: `PermissionRequest` and `PreToolUse` events pipe JSON via stdin
 - **Debounce**: Stop events are debounced 30s via `%TEMP%\Codex-notify-state.json`
 - **Event type**: Reads `process.argv[2]` (`--permission`, `--question`, `--stop`)
-- **Click-to-focus**: If a `claude-win-notify://` protocol handler is registered, toasts include `activation: { type: "protocol", launch: "claude-win-notify://focus" }` — clicking the notification runs `focus-terminal.vbs` to bring the most recent Windows Terminal window to the foreground (no new tabs/windows)
+- **Click-to-focus**: Before showing a toast, `notify.mjs` validates the `claude-win-notify://` protocol handler and repairs it when needed. The handler uses `%LOCALAPPDATA%\claude-win-notify`, not the mutable plugin cache. Clicking the notification runs `focus-terminal.vbs` to bring the most recent Windows Terminal window to the foreground (no new tabs/windows)
 
 ### Focus Handler
 
-- `install-focus-handler.ps1` — one-time script that registers `claude-win-notify://` protocol in `HKCU\Software\Classes`
+- `install-focus-handler.ps1` — copies the focus scripts to `%LOCALAPPDATA%\claude-win-notify` and registers `claude-win-notify://` in `HKCU\Software\Classes`; it is called automatically when the handler is missing or stale
 - `focus-terminal.vbs` — VBScript using COM to find and activate the most recent Windows Terminal window
 - `notify.mjs` detects the handler via `hasFocusHandler()` (registry check); focus activation is only added when the handler is present
 

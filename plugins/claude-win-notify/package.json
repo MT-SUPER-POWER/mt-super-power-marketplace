@@ -1,6 +1,6 @@
 {
   "name": "claude-win-notify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Windows 原生 Toast 通知 — 实时推送 Claude Code 的关键事件。",
   "scripts": {
     "test": "node hooks/scripts/tests/test.mjs",
